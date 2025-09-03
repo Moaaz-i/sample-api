@@ -1,6 +1,10 @@
 let searchInput = document.getElementById('search');
 let data = {};
 
+let error = document.createElement('p');
+error.className = 'text-danger';
+document.getElementById('searchContainer')?.appendChild(error);
+
 function getMeal(name = 'pizza') {
   let Http = new XMLHttpRequest();
   Http.open('GET', `https://forkify-api.herokuapp.com/api/search?q=${name}`);
@@ -11,18 +15,15 @@ function getMeal(name = 'pizza') {
       data = Http.response.recipes;
 
       if (!data || data.length === 0) {
-        console.warn(
-          `No results found for "${name}". "pizza" will be returned.`
-        );
-        if (name !== 'pizza') {
-          getMeal('pizza');
-        }
+        error.innerHTML = `No results found for "<strong>${name}</strong>". Showing "pizza" instead.`;
         return;
+      } else {
+        error.innerHTML = '';
       }
 
       displayMeals();
-    } catch (error) {
-      console.error('Error processing data:', error);
+    } catch (err) {
+      error.innerHTML = `Error processing data: ${err.message}`;
       if (name !== 'pizza') {
         getMeal('pizza');
       }
@@ -30,15 +31,10 @@ function getMeal(name = 'pizza') {
   };
 
   Http.onerror = () => {
-    console.error('Failed to connect to server.');
-    if (name !== 'pizza') {
-      getMeal('pizza');
-    }
+    error.innerHTML = `Failed to connect to server.`;
   };
 
-  if (Http.status <= 300) {
-    Http.send();
-  }
+  Http.send();
 }
 
 function displayMeals() {
