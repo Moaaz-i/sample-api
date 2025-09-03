@@ -5,6 +5,38 @@ let error = document.createElement('p');
 error.className = 'text-danger';
 document.getElementById('searchContainer')?.appendChild(error);
 
+let availableQueries = [];
+
+function getQuerys() {
+  let xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://forkify-api.herokuapp.com/phrases.html');
+
+  xhr.onload = () => {
+    if (xhr.status >= 200 && xhr.status < 300) {
+      let html = xhr.responseText;
+
+      let phrases = html.match(/<li>(.*?)<\/li>/gs)?.map((item) => {
+        return item.replace(/<li>|<\/li>/g, '').trim();
+      });
+
+      if (phrases && phrases.length > 0) {
+        availableQueries = phrases;
+        console.log('✅ Available words:', availableQueries);
+      } else {
+        console.warn('⚠️ No valid words were found.');
+      }
+    } else {
+      console.error('❌ Failed to load page:', xhr.status);
+    }
+  };
+
+  xhr.onerror = () => {
+    console.error('❌ Error connecting to page.');
+  };
+
+  xhr.send();
+}
+
 function getMeal(name = 'pizza') {
   let Http = new XMLHttpRequest();
   Http.open('GET', `https://forkify-api.herokuapp.com/api/search?q=${name}`);
@@ -73,13 +105,12 @@ function displayMeals() {
 }
 
 getMeal();
+getQuerys();
 
 searchInput.addEventListener('input', (e) => {
   const query = e.target.value.trim();
 
-  if (query.length >= 2) {
+  if (availableQueries.includes(query)) {
     getMeal(query);
-  } else {
-    getMeal();
   }
 });
