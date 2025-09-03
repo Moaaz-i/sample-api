@@ -110,7 +110,15 @@ getQuerys();
 searchInput.addEventListener('input', (e) => {
   const query = e.target.value.trim();
 
-  if (availableQueries.includes(query)) {
-    getMeal(query);
+  if (availableQueries.includes(query.toLowerCase())) {
+    getMeal(query.toLowerCase());
+  } else {
+    error.innerText = `We didn't find what you were looking for. Please search more clearly. \n
+        You can search for: 
+            1 - pasta
+            2 - pizza
+            3 - asparagus
+            4 - and More
+    `;
   }
 });
